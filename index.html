@@ -15,13 +15,18 @@
         width: 100%;
       }
 
+      #instruction {
+        font-size: large;
+        font-style: italic;
+      }
+
       #camera,
       #camera--view,
       #camera--sensor,
       #camera--output {
         position: fixed;
-        height: 100%;
-        width: 100%;
+        height: 50%;
+        width: 50%;
         object-fit: cover;
       }
 
@@ -62,6 +67,7 @@
   <body>
     <!-- Camera -->
     <main id="camera">
+      <div id="instruction">Please take photo of red_side</div>
       <!-- Camera sensor -->
       <canvas id="camera--sensor"></canvas>
       <!-- Camera view -->
@@ -74,14 +80,25 @@
     </main>
     <!-- Reference to your JavaScript file -->
     <script>
+      let sideArray = [
+        "red_side",
+        "yellow_side",
+        "blue_side",
+        "green_side",
+        "orange_side",
+        "white_side",
+      ];
+      let currentSide = 0;
       var constraints = { video: true, audio: false };
-      var targetDiv = document.getElementById("error--output")
-      
+      var targetDiv = document.getElementById("error--output");
+      let track;
+
       // Define constants
       const cameraView = document.querySelector("#camera--view"),
         cameraOutput = document.querySelector("#camera--output"),
         cameraSensor = document.querySelector("#camera--sensor"),
-        cameraTrigger = document.querySelector("#camera--trigger");
+        cameraTrigger = document.querySelector("#camera--trigger"),
+        instructionDiv = document.querySelector("#instruction");
       // Access the device camera and stream to cameraView
       function cameraStart() {
         console.log("satas");
@@ -103,12 +120,52 @@
       }
       // Take a picture when cameraTrigger is tapped
       cameraTrigger.onclick = function () {
+        if (currentSide >= 5) {
+          window.alert(`Please stop can't take it anymore`);
+          return;
+        }
         cameraSensor.width = cameraView.videoWidth;
         cameraSensor.height = cameraView.videoHeight;
         cameraSensor.getContext("2d").drawImage(cameraView, 0, 0);
         cameraOutput.src = cameraSensor.toDataURL("image/webp");
         cameraOutput.classList.add("taken");
+        const file = DataURIToBlob(cameraOutput.src);
+        const formData = new FormData();
+        formData.append(sideArray[currentSide], file, "red_side.jpg");
+        const xhr = new XMLHttpRequest();
+
+        // We set up the callback to handle the server response
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            // The file has been uploaded successfully
+            console.log("File successfully uploaded!");
+          }
+        };
+
+        // We open the connection to the server
+        xhr.open("POST", "/upload", true);
+
+        // We send the request to the server with the send() method
+        xhr.send(formData);
+        currentSide += 1;
+        instructionDiv.textContent = `Please take photo of ${sideArray[currentSide]}`;
       };
+
+      function DataURIToBlob(dataURI) {
+        const splitDataURI = dataURI.split(",");
+        const byteString =
+          splitDataURI[0].indexOf("base64") >= 0
+            ? atob(splitDataURI[1])
+            : decodeURI(splitDataURI[1]);
+        const mimeString = splitDataURI[0].split(":")[1].split(";")[0];
+
+        const ia = new Uint8Array(byteString.length);
+        for (let i = 0; i < byteString.length; i++)
+          ia[i] = byteString.charCodeAt(i);
+
+        return new Blob([ia], { type: mimeString });
+      }
+
       // Start the video stream when the window loads
       window.addEventListener("load", cameraStart, false);
     </script>
