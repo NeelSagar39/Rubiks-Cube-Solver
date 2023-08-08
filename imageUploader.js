@@ -1,8 +1,22 @@
 const express = require("express");
 const fileUpload = require("express-fileupload");
 const path = require("path");
-const app = express();
-const port = 3000;
+let app = express();
+const port = 8080;
+
+const https = require('https')
+const fs = require('fs')
+
+let key = fs.readFileSync('./config/tutorial.key','utf-8')
+let cert = fs.readFileSync('./config/tutorial.crt','utf-8')
+
+const parameters = {
+    key: key,
+    cert: cert
+  }
+  
+
+
 
 // Add this line to serve our index.html page
 app.use(express.static("public"));
@@ -91,6 +105,7 @@ app.post("/upload", function (req, res) {
   );
 });
 
-app.listen(port, () => {
+server = https.createServer(parameters,app)
+server.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

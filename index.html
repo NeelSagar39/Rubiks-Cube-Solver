@@ -1,36 +1,116 @@
-<html>
+<html lang="”en”">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Name of your awesome camera app -->
+    <title>Camera App</title>
+    <!-- Link to your main style sheet-->
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+      #camera,
+      #camera--view,
+      #camera--sensor,
+      #camera--output {
+        position: fixed;
+        height: 100%;
+        width: 100%;
+        object-fit: cover;
+      }
+
+      #camera--view,
+      #camera--sensor,
+      #camera--output {
+        transform: scaleX(-1);
+        filter: FlipH;
+      }
+
+      #camera--trigger {
+        width: 200px;
+        background-color: black;
+        color: white;
+        font-size: 16px;
+        border-radius: 30px;
+        border: none;
+        padding: 15px 20px;
+        text-align: center;
+        box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.2);
+        position: fixed;
+        bottom: 30px;
+        left: calc(50% - 100px);
+      }
+
+      .taken {
+        height: 100px !important;
+        width: 100px !important;
+        transition: all 0.5s ease-in;
+        border: solid 3px white;
+        box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.2);
+        top: 20px;
+        right: 20px;
+        z-index: 2;
+      }
+    </style>
+  </head>
   <body>
-    <form ref='uploadForm' 
-      id='uploadForm' 
-      action='/upload' 
-      method='post' 
-      encType="multipart/form-data">
-      <div>
-        <h1>RED SIDE</h1> <br/>
-        <input type="file" name="red_side" capture="camera" />
-      </div>
-      <div>
-        <h1>WHITE SIDE</h1> <br/>
-        <input type="file" name="white_side" capture="camera"/>  
-      </div>
-      <div> 
-        <h1>ORANGE SIDE</h1> <br/>
-        <input type="file" name="orange_side"capture="camera" />
-      </div>
-      <div>
-        <h1>YELLOW SIDE</h1> <br/>
-        <input type="file" name="yellow_side"capture="camera" />
-      </div>
-      <div>
-        <h1>GREEN SIDE</h1> <br/>
-        <input type="file" name="green_side" capture="camera" />
-      </div>
-      <div>
-        <h1>BLUE SIDE</h1> <br/>
-        <input type="file" name="blue_side" capture="camera" />
-      </div>
-      <br />
-      <input type='submit' value='Upload!'/>
-    </form>     
+    <!-- Camera -->
+    <main id="camera">
+      <!-- Camera sensor -->
+      <canvas id="camera--sensor"></canvas>
+      <!-- Camera view -->
+      <video id="camera--view" autoplay playsinline></video>
+      <!-- Camera output -->
+      <img src="//:0" alt="" id="camera--output" />
+      <!-- Camera trigger -->
+      <button id="camera--trigger">Take a picture</button>
+      <div id="error--output">adsadas</div>
+    </main>
+    <!-- Reference to your JavaScript file -->
+    <script>
+      var constraints = { video: true, audio: false };
+      var targetDiv = document.getElementById("error--output")
+      
+      // Define constants
+      const cameraView = document.querySelector("#camera--view"),
+        cameraOutput = document.querySelector("#camera--output"),
+        cameraSensor = document.querySelector("#camera--sensor"),
+        cameraTrigger = document.querySelector("#camera--trigger");
+      // Access the device camera and stream to cameraView
+      function cameraStart() {
+        console.log("satas");
+        if (!navigator.mediaDevices) {
+          console.log("Sorry, getUserMedia is not supported");
+          targetDiv.textContent = "getUserMedia not supported";
+        }
+        navigator.mediaDevices
+          .getUserMedia(constraints)
+          .then(function (stream) {
+            track = stream.getTracks()[0];
+            cameraView.srcObject = stream;
+            targetDiv.textContent = stream;
+          })
+          .catch(function (error) {
+            console.error("Oops. Something is broken.", error);
+            targetDiv.textContent = error;
+          });
+      }
+      // Take a picture when cameraTrigger is tapped
+      cameraTrigger.onclick = function () {
+        cameraSensor.width = cameraView.videoWidth;
+        cameraSensor.height = cameraView.videoHeight;
+        cameraSensor.getContext("2d").drawImage(cameraView, 0, 0);
+        cameraOutput.src = cameraSensor.toDataURL("image/webp");
+        cameraOutput.classList.add("taken");
+      };
+      // Start the video stream when the window loads
+      window.addEventListener("load", cameraStart, false);
+    </script>
   </body>
 </html>
