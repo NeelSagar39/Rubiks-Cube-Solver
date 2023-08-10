@@ -3,13 +3,13 @@ import numpy as np
 
 
 color_ranges = {
-    'red1': ([0, 30, 20], [10, 255, 255]),         # Red is at both ends of the hue spectrum
-    'red2': ([160,100,20], [179,255,255]), 
-    'blue': ([90, 100, 100], [130, 255, 255]),    # Blue is between 100 and 130 in hue
-    'green': ([40, 100, 100], [80, 255, 255]),     # Green is between 40 and 80 in hue
-    'yellow': ([25, 100, 100], [39, 255, 255]),   # Yellow is between 20 and 40 in hue
-    'white': ([0, 0, 200], [255, 200, 255]),       # White is defined by lower saturation and value
-    'orange': ([10, 100, 20], [25, 255, 255])    # Orange is between 10 and 20 in hue
+    'r1': ([0, 30, 20], [10, 255, 255]),         # Red is at both ends of the hue spectrum
+    'r2': ([160,100,20], [179,255,255]), 
+    'b': ([90, 100, 100], [130, 255, 255]),    # Blue is between 100 and 130 in hue
+    'g': ([40, 100, 100], [80, 255, 255]),     # Green is between 40 and 80 in hue
+    'y': ([25, 100, 100], [39, 255, 255]),   # Yellow is between 20 and 40 in hue
+    'w': ([0, 0, 200], [255, 200, 255]),       # White is defined by lower saturation and value
+    'o': ([10, 100, 20], [25, 255, 255])    # Orange is between 10 and 20 in hue
 }
 
 def detect_main_color(hsv_image):
@@ -17,7 +17,7 @@ def detect_main_color(hsv_image):
     max_count = 0
 
     for color_name,(lower_val, upper_val) in color_ranges.items():
-        if color_name == 'white':
+        if color_name == 'w':
             # For white, focus on low saturation and high value
             mask = cv2.inRange(hsv_image, np.array([lower_val[0], 0, lower_val[2]]), np.array([upper_val[0], 255, upper_val[2]]))
             count = np.sum(mask)
@@ -27,13 +27,12 @@ def detect_main_color(hsv_image):
             # count white pixels on mask
             count = np.sum(mask)
         if count > max_count:
-            print(count, color_name)
             color_found = color_name
             max_count = count
-        if color_found in ["red1", "red2"]:
-            color_found = "red"
+        if color_found in ["r1", "r2"]:
+            color_found = "r"
         if color_found == 'undefined':
-            color_found = "white" #temporary fix for now I dont know how will I work with this
+            color_found = "w" #temporary fix for now I dont know how will I work with this
     return color_found
 
 def get_dominant_color(image):
