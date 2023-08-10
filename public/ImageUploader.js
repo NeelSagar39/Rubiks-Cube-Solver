@@ -1,25 +1,24 @@
 const express = require("express");
 const fileUpload = require("express-fileupload");
+const sharp = require("sharp");
 const path = require("path");
 let app = express();
 const port = 8080;
 
-const https = require('https')
-const fs = require('fs')
+const https = require("https");
+const fs = require("fs");
 
-let key = fs.readFileSync('./config/tutorial.key','utf-8')
-let cert = fs.readFileSync('./config/tutorial.crt','utf-8')
+let key = fs.readFileSync("../config/tutorial.key", "utf-8");
+let cert = fs.readFileSync("../config/tutorial.crt", "utf-8");
 
 const parameters = {
-    key: key,
-    cert: cert
-  }
-  
-
-
+  key: key,
+  cert: cert,
+};
 
 // Add this line to serve our index.html page
 app.use(express.static("public"));
+app.use("/images", express.static(__dirname + "/images"));
 app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "./index.html"));
 });
@@ -34,7 +33,6 @@ app.post("/upload", function (req, res) {
   let yellow_side;
   let green_side;
   let blue_side;
-  let uploadPath;
 
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send("No files were uploaded.");
@@ -43,39 +41,33 @@ app.post("/upload", function (req, res) {
   // The name of the input field (i.e. "red_side", "blue_side", ....) is used to retrieve the uploaded file
   red_side = {
     file: req.files.red_side,
-    uploadPath: __dirname + "/images/" + "red_side.jpg",
+    uploadPath: __dirname + "/cube_images/" + "red_side.jpg",
   };
-  console.log(red_side);
 
   white_side = {
     file: req.files.white_side,
-    uploadPath: __dirname + "/images/" + "white_side.jpg",
+    uploadPath: __dirname + "/cube_images/" + "white_side.jpg",
   };
-  console.log(white_side);
 
   orange_side = {
     file: req.files.orange_side,
-    uploadPath: __dirname + "/images/" + "orange_side.jpg",
+    uploadPath: __dirname + "/cube_images/" + "orange_side.jpg",
   };
-  console.log(orange_side);
 
   yellow_side = {
     file: req.files.yellow_side,
-    uploadPath: __dirname + "/images/" + "yellow_side.jpg",
+    uploadPath: __dirname + "/cube_images/" + "yellow_side.jpg",
   };
-  console.log(yellow_side);
 
   blue_side = {
     file: req.files.blue_side,
-    uploadPath: __dirname + "/images/" + "blue_side.jpg",
+    uploadPath: __dirname + "/cube_images/" + "blue_side.jpg",
   };
-  console.log(blue_side);
 
   green_side = {
     file: req.files.green_side,
-    uploadPath: __dirname + "/images/" + "green_side.jpg",
+    uploadPath: __dirname + "/cube_images/" + "green_side.jpg",
   };
-  console.log(green_side);
 
   fileArray = [
     red_side,
@@ -90,6 +82,15 @@ app.post("/upload", function (req, res) {
   for (const fileObj of fileArray) {
     if (fileObj.file !== undefined) {
       totalSides += 1;
+      console.log(fileObj.file.data);
+      fileObj.file.data = sharp(fileObj.file.data).composite(
+        [
+          {input: __dirname + "/images/finalCubeMask2.png"}
+        ]
+      )
+        .resize(200, 200)
+        .toFile(fileObj.uploadPath, (err) => console.log(err));
+        
       fileObj.file.mv(fileObj.uploadPath, function (err) {
         if (err) return res.status(500).send(err);
       });
@@ -105,7 +106,7 @@ app.post("/upload", function (req, res) {
   );
 });
 
-server = https.createServer(parameters,app)
+server = https.createServer(parameters, app);
 server.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

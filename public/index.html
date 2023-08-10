@@ -25,16 +25,16 @@
       #camera--sensor,
       #camera--output {
         position: fixed;
-        height: 50%;
-        width: 50%;
+        height: 200px;
+        width: 200px;
         object-fit: cover;
       }
 
-      #camera--view,
-      #camera--sensor,
-      #camera--output {
-        transform: scaleX(-1);
-        filter: FlipH;
+      #cube--mask {
+        position: fixed;
+        height: 200px;
+        width: 200px;
+        object-fit: cover;
       }
 
       #camera--trigger {
@@ -71,9 +71,10 @@
       <!-- Camera sensor -->
       <canvas id="camera--sensor"></canvas>
       <!-- Camera view -->
-      <video id="camera--view" autoplay playsinline></video>
+      <video id="camera--view" autoplay playsinline width="200px" height="200px"></video>
       <!-- Camera output -->
       <img src="//:0" alt="" id="camera--output" />
+      <img src="images/cubeMask.png" id="cube--mask" />
       <!-- Camera trigger -->
       <button id="camera--trigger">Take a picture</button>
       <div id="error--output">adsadas</div>
@@ -89,7 +90,7 @@
         "white_side",
       ];
       let currentSide = 0;
-      var constraints = { video: true, audio: false };
+      var constraints = { video: {facingMode: "environment"}, audio: false };
       var targetDiv = document.getElementById("error--output");
       let track;
 
@@ -120,7 +121,7 @@
       }
       // Take a picture when cameraTrigger is tapped
       cameraTrigger.onclick = function () {
-        if (currentSide >= 5) {
+        if (currentSide >= 6) {
           window.alert(`Please stop can't take it anymore`);
           return;
         }
@@ -131,7 +132,7 @@
         cameraOutput.classList.add("taken");
         const file = DataURIToBlob(cameraOutput.src);
         const formData = new FormData();
-        formData.append(sideArray[currentSide], file, "red_side.jpg");
+        formData.append(sideArray[currentSide], file, `${sideArray[currentSide]}.jpg`);
         const xhr = new XMLHttpRequest();
 
         // We set up the callback to handle the server response
@@ -149,6 +150,9 @@
         xhr.send(formData);
         currentSide += 1;
         instructionDiv.textContent = `Please take photo of ${sideArray[currentSide]}`;
+        if (currentSide == 6) {
+          window.alert("NOW WAIT FOR SOME TIME FOR CUBE TO BE SOLVED");
+        }
       };
 
       function DataURIToBlob(dataURI) {
