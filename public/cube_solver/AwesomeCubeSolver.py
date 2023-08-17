@@ -1,14 +1,19 @@
-import json
+from collections import Counter
+from ancient.Cube import RubiksCube
+
 import cv2
 import os
 import numpy as np
-import DominantColor  # Make sure you have the DominantColor module or function available
-from DatabaseBuilder import IDA_star, build_heuristic_db
-from rubik.cube import Cube
-from rubik.solve import Solver
+import DominantColor  
+
+from twophase import solve_best
+
+from Cube.cube import Cube
+from Cube.Solver import beginners 
+
+
 def get_state_from_images(images):
     
-    state = ""
     for image in images: 
         cubies = []
         img = image["convertedFile"]
@@ -31,73 +36,50 @@ def get_state_from_images(images):
         newCubiesWithColor = []
         for cubieSide in newCubies:
             newCubiesWithColor.append(DominantColor.get_dominant_color(cubieSide))  # Make sure DominantColor.getDominantColor() is defined
-        state = state + "".join(newCubiesWithColor)
+        image["state"] = ''.join(newCubiesWithColor)
+    
+    return images
 
+def get_state_in_sequence(images):
+    expectedColorStructure = ["blue_side", "white_side", "orange_side","green_side","yellow_side", "red_side"]
+    # expectedColorStructure =["blue_side", "yellow_side","orange_side", "white_side", "red_side", "green_side"]
+    # expectedColorStructure =[ "white_side", "orange_side", "green_side", "red_side", "blue_side", "yellow_side"]
+    state=""
+    for color in expectedColorStructure: 
+        desired_dict = None
+        for img_dict in images:
+            if img_dict["name"] == color:
+                desired_dict = img_dict
+        print(color)
+        state = state+desired_dict["state"] 
     return state
 
 if __name__ == "__main__":
     expectedColorStructure = ["blue_side", "yellow_side","orange_side", "white_side", "red_side", "green_side"]
-    images = [{"convertedFile": cv2.imread(os.getcwd() + f"/public/cube_images/{name}.jpg"), "name": name} for name in expectedColorStructure]
-    state = get_state_from_images(images)
+    images = [{"convertedFile": cv2.imread(os.getcwd() + f"/cube_images/{name}.jpg"), "name": name} for name in expectedColorStructure]
+    images = get_state_from_images(images)
+    state = get_state_in_sequence(images)
+
+    #--------------------------------
+    cube = RubiksCube(n=3, state=state) 
+    cube.show()
+    print('-----------')
+    #--------------------------------
+
+    state = state.replace('b', 'U')
+    state = state.replace('o', 'F')
+    state = state.replace('y', 'L')
+    state = state.replace('r', 'B')
+    state = state.replace('w', 'R')
+    state = state.replace('g', 'D')
     print(state)
+    character_counts = Counter(state)
 
-    # # START TO SOLVE THE CUBE 
-    # MAX_MOVES = 5
-    # NEW_HEURISTICS = False
-    # HEURISTIC_FILE = 'heuristic.json'
-
-    # #--------------------------------
-    # cube = RubiksCube(n=3, state=state)
-    # cube.show()
-    # print('-----------')
-    # #--------------------------------
-
-    # if os.path.exists(HEURISTIC_FILE):
-    #     print("File exists")
-    #     with open(HEURISTIC_FILE) as f:
-    #         h_db = json.load(f)
-    # else:
-    #     h_db = None
-
-    # if h_db is None or NEW_HEURISTICS is True:
-    #     actions = [(r, n, d) for r in ['h', 'v', 's'] for d in [0, 1] for n in range(cube.n)]
-    #     h_db = build_heuristic_db(
-    #         cube.stringify(),
-    #         actions,
-    #         max_moves = MAX_MOVES,
-    #         heuristic = h_db
-    #     )
-
-    #     with open(HEURISTIC_FILE, 'w', encoding='utf-8') as f:
-    #         json.dump(
-    #             h_db,
-    #             f,
-    #             ensure_ascii=False,
-    #             indent=4
-    #         )
-    # # #--------------------------------
-    # # cube.shuffle(
-    # #     l_rot = MAX_MOVES if MAX_MOVES < 5 else 5,
-    # #     u_rot = MAX_MOVES
-    # # )
-    # # cube.show()
-    # # print('----------')
-    # #--------------------------------
-    # solver = IDA_star(h_db)
-    # moves = solver.run(cube.stringify())
-    # print(moves)
-
-    # for m in moves:
-    #     if m[0] == 'h':
-    #         cube.horizontal_twist(m[1], m[2])
-    #     elif m[0] == 'v':
-    #         cube.vertical_twist(m[1], m[2])
-    #     elif m[0] == 's':
-    #         cube.side_twist(m[1], m[2])
-    # cube.show()
-
-    c = Cube("rbrybwoboyyyyyyyrwoooooobbbwwwwwwwryrrrrrrbbbggggggggg".upper())
-    print(c)
-    solver = Solver(c)
-    solver.solve()
-
+    for char, count in character_counts.items():
+        print(f"'{char}' appears {count} times.")
+    moves = solve_best(state.upper())
+    print(moves)
+    # c = Cube(state)
+    # # c.scramble()
+    # print(c)
+    # print(beginners.solve(c))

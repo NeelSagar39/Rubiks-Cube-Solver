@@ -17,15 +17,10 @@ def detect_main_color(hsv_image):
     max_count = 0
 
     for color_name,(lower_val, upper_val) in color_ranges.items():
-        if color_name == 'w':
-            # For white, focus on low saturation and high value
-            mask = cv2.inRange(hsv_image, np.array([lower_val[0], 0, lower_val[2]]), np.array([upper_val[0], 255, upper_val[2]]))
-            count = np.sum(mask)
-        else:
-            # threshold the HSV image - any matching color will show up as white
-            mask = cv2.inRange(hsv_image, np.array(lower_val), np.array(upper_val))
-            # count white pixels on mask
-            count = np.sum(mask)
+        # threshold the HSV image - any matching color will show up as white
+        mask = cv2.inRange(hsv_image, np.array(lower_val), np.array(upper_val))
+        # count white pixels on mask
+        count = np.sum(mask)
         if count > max_count:
             color_found = color_name
             max_count = count
