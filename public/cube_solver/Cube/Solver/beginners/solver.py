@@ -11,6 +11,7 @@ def __solve_cross(cube):
         neighbor = __get_neighbors(cube, edge)[0]
         i = 0
         if edge.point[1] == 0:
+            print(edge.norm)
             while True:
                 if edge.norm[2] == -1:
                     if edge.point[0] == 1:

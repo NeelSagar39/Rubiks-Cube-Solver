@@ -67,7 +67,7 @@
   <body>
     <!-- Camera -->
     <main id="camera">
-      <div id="instruction">Please take photo of orange_side</div>
+      <div id="instruction">Please take photo of green_side</div>
       <!-- Camera sensor -->
       <canvas id="camera--sensor"></canvas>
       <!-- Camera view -->
@@ -82,12 +82,12 @@
     <!-- Reference to your JavaScript file -->
     <script>
       let sideArray = [
+        "green_side",
         "orange_side",
-        "yellow_side",
+        "blue_side",
         "red_side",
         "white_side",
-        "blue_side",
-        "green_side",
+        "yellow_side",
       ];
       let currentSide = 0;
       var constraints = { video: {facingMode: "environment"}, audio: false };

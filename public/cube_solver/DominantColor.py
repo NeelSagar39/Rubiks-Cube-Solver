@@ -3,13 +3,13 @@ import numpy as np
 
 
 color_ranges = {
-    'r1': ([0, 30, 20], [10, 255, 255]),         # Red is at both ends of the hue spectrum
+    'r1': ([0, 214, 158], [10, 255, 255]),         # Red is at both ends of the hue spectrum
     'r2': ([160,100,20], [179,255,255]), 
     'b': ([90, 100, 100], [130, 255, 255]),    # Blue is between 100 and 130 in hue
     'g': ([40, 100, 100], [80, 255, 255]),     # Green is between 40 and 80 in hue
     'y': ([25, 100, 100], [39, 255, 255]),   # Yellow is between 20 and 40 in hue
     'w': ([0, 0, 200], [255, 200, 255]),       # White is defined by lower saturation and value
-    'o': ([10, 100, 20], [25, 255, 255])    # Orange is between 10 and 20 in hue
+    'o': ([5, 50, 50], [15, 255, 255])    # Orange is between 10 and 20 in hue
 }
 
 def detect_main_color(hsv_image):

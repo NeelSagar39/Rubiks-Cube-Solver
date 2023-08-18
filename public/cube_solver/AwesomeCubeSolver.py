@@ -1,15 +1,12 @@
 from collections import Counter
-from ancient.Cube import RubiksCube
 
 import cv2
 import os
 import numpy as np
 import DominantColor  
 
-from twophase import solve_best
-
 from Cube.cube import Cube
-from Cube.Solver import beginners 
+from Cube.Solver import kociemba 
 
 
 def get_state_from_images(images):
@@ -41,9 +38,7 @@ def get_state_from_images(images):
     return images
 
 def get_state_in_sequence(images):
-    expectedColorStructure = ["blue_side", "white_side", "orange_side","green_side","yellow_side", "red_side"]
-    # expectedColorStructure =["blue_side", "yellow_side","orange_side", "white_side", "red_side", "green_side"]
-    # expectedColorStructure =[ "white_side", "orange_side", "green_side", "red_side", "blue_side", "yellow_side"]
+    expectedColorStructure =[ "white_side", "orange_side", "green_side", "red_side", "blue_side", "yellow_side"]
     state=""
     for color in expectedColorStructure: 
         desired_dict = None
@@ -59,27 +54,12 @@ if __name__ == "__main__":
     images = [{"convertedFile": cv2.imread(os.getcwd() + f"/cube_images/{name}.jpg"), "name": name} for name in expectedColorStructure]
     images = get_state_from_images(images)
     state = get_state_in_sequence(images)
-
-    #--------------------------------
-    cube = RubiksCube(n=3, state=state) 
-    cube.show()
-    print('-----------')
-    #--------------------------------
-
-    state = state.replace('b', 'U')
-    state = state.replace('o', 'F')
-    state = state.replace('y', 'L')
-    state = state.replace('r', 'B')
-    state = state.replace('w', 'R')
-    state = state.replace('g', 'D')
-    print(state)
     character_counts = Counter(state)
-
     for char, count in character_counts.items():
         print(f"'{char}' appears {count} times.")
-    moves = solve_best(state.upper())
-    print(moves)
-    # c = Cube(state)
-    # # c.scramble()
-    # print(c)
-    # print(beginners.solve(c))
+    c = Cube(state)
+    print(c)
+    solution = kociemba.solve(c)
+    solution = solution.replace("D`", "R L F2 B2 R` L` U` R L F2 B2 R` L`")
+    solution = solution.replace("D", "R L F2 B2 R` L` U R L F2 B2 R` L`")
+    print(solution)
