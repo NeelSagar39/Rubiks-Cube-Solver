@@ -1,4 +1,4 @@
-# 🤊 Rubik's Cube Solver
+# 🧊 Rubik's Cube Solver
 
 This project hosts a simple Express.js web server that allows you to **take a picture of a Rubik's Cube from your phone**, detect the cube’s colors, generate a matrix representation, and calculate the **most optimal moves to solve it**.
 
